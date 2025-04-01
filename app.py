@@ -218,7 +218,6 @@ def process_file_command(user_query: str) -> str:
             
             if len(parts) > 1:
                 append_content_prompt = parts[1].strip()
-                # Generate content to append using LLM
                 generation_prompt = f"Write additional content to append to a file named '{filename}'. {append_content_prompt}"
                 append_content = model.generate_content(generation_prompt).text
             else:
@@ -261,16 +260,19 @@ def main():
         if user_input.lower() in ["exit", "quit", "stop"]:
             print("Goodbye!")
             break
-            
+       
         file_command_result = process_file_command(user_input)
         
         if file_command_result is not None:
             print(f"Anton (File Tool): {file_command_result}")
         else:
-            response = Antons_Response(user_input)
+            if user_input.lower() in ["who are you","who are you ?","what are you","what are you ?","introduce yourself"]:
+                response="I am Anton, How can Anton help you today?"
+            else: 
+                response = Antons_Response(user_input)
             print(f"Anton: {response}")
             
-        print("----------------------------------------------------------------------------------------------------------------------------")
+        print("--------------------------------------------------------------------------------------------------------------------------------")
 
 if __name__ == "__main__":
     main()
