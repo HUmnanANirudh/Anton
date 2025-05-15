@@ -4,10 +4,6 @@ import sys
 import time
 import traceback
 from pathlib import Path
-import re
-from vosk import Model, KaldiRecognizer
-import pyaudio
-import json
 from dotenv import load_dotenv
 
 
@@ -56,8 +52,6 @@ engine = pyttsx3.init()
 def speak(text):
     engine.say(text)
     engine.runAndWait()
-
-# Speech-to-Text
 recognizer = sr.Recognizer()
 
 def recognize_speech():
@@ -413,40 +407,15 @@ def is_file_related_query(user_query: str) -> bool:
     lower_q = user_query.lower()
     return any(kw in lower_q for kw in keywords)
 
-
-class VoskSTT:
-    def __init__(self, model_paths):
-        self.models = {}
-        for lang, path in model_paths.items():
-            if not os.path.exists(path):
-                raise ValueError(f"Model path {path} not found")
-            self.models[lang] = Model(path)
-        self.current_lang = "en"  # default language
-        self.recognizer = None
-        self.update_recognizer()
+class SpeechRecognitionThread(QThread):
+    result = Signal(str)
+    listening_status = Signal(bool)
     
-    def update_recognizer(self):
-        model = self.models[self.current_lang]
-        self.recognizer = KaldiRecognizer(model, 16000)
-    
-    def switch_language(self, lang):
-        if lang in self.models:
-            self.current_lang = lang
-            self.update_recognizer()
-            return True
-        return False
-    
-
-model_paths = {
-    "en": r"C:\Users\HP\Anton\models\vosk-model-small-en-us-0.15",
-    "hi": r"C:\Users\HP\Anton\models\vosk-model-small-hi-0.22"
-}
-
-vosk_stt = VoskSTT(model_paths)
-
-def recognize_speech_wrapper():
-    return recognize_speech(vosk_stt)
-
+    def run(self):
+        self.listening_status.emit(True)
+        recognized_text = recognize_speech()
+        self.result.emit(recognized_text)
+        self.listening_status.emit(False)
 
 # Speech Recognition Thread
 class SpeechRecognitionThread(QThread):
@@ -460,6 +429,16 @@ class SpeechRecognitionThread(QThread):
     def run(self):
         self.listening_status.emit(True)
         recognized_text = recognize_speech(self.vosk_stt)
+        self.result.emit(recognized_text)
+        self.listening_status.emit(False)
+
+class SpeechRecognitionThread(QThread):
+    result = Signal(str)
+    listening_status = Signal(bool)
+    
+    def run(self):
+        self.listening_status.emit(True)
+        recognized_text = recognize_speech()
         self.result.emit(recognized_text)
         self.listening_status.emit(False)
 
@@ -490,34 +469,6 @@ class ResponseThread(QThread):
                     self.progress.emit(80)
                 self.result.emit(response)
             self.progress.emit(100)
-    def recognize_speech(vosk_stt, timeout=5):
-        """Use Vosk for offline speech recognition"""
-        p = pyaudio.PyAudio()
-        stream = p.open(format=pyaudio.paInt16,
-                        channels=1,
-                        rate=16000,
-                        input=True,
-                        frames_per_buffer=8192)
-    
-        print("Listening...")
-        result_text = ""
-    
-        try:
-            while True:
-                data = stream.read(4096, exception_on_overflow=False)
-                if vosk_stt.recognizer.AcceptWaveform(data):
-                    result = json.loads(vosk_stt.recognizer.Result())
-                    result_text = result.get('text', '')
-                    break
-        except Exception as e:
-            print(f"Recognition error: {e}")
-            return "Error in speech recognition"
-        finally:
-            stream.stop_stream()
-            stream.close()
-            p.terminate()
-    
-        return result_text if result_text else "No speech detected"
 
 # Custom Widgets
 class PulseAnimation(QObject):
@@ -619,6 +570,7 @@ class ChatBubble(QFrame):
         self.is_user = is_user
         self.text = text
         
+        
         self.setObjectName("chatBubble")
         self.setFrameShape(QFrame.StyledPanel)
         self.setFrameShadow(QFrame.Raised)
@@ -669,7 +621,7 @@ class ChatBubble(QFrame):
                     background-color: {ThemeColors.USER_BUBBLE};
                     border-radius: 18px;
                     border-top-right-radius: 4px;
-                    border: none;
+                    border: none;`
                 }}
                 #messageText {{
                     color: {ThemeColors.TEXT_PRIMARY};
@@ -1089,19 +1041,25 @@ class AntonApp(QMainWindow):
         self.voice_button.setIcon(QIcon.fromTheme("audio-input-microphone"))
         self.voice_button.setFixedSize(50, 50)
         self.voice_button.clicked.connect(self.start_voice_input)
-        input_layout.addWidget(self.voice_button)
-        
+                
         # Voice input indicator
         self.voice_indicator = WaveCircle()
         self.voice_indicator.setFixedSize(50, 50)
         self.voice_indicator.setVisible(False)
         self.voice_indicator._color = QColor(ThemeColors.SUCCESS)
-        input_layout.addWidget(self.voice_indicator)
         
         # Send button
         self.send_button = RoundedButton("Send", color=ThemeColors.ACCENT_BRIGHT)
         self.send_button.clicked.connect(self.send_message)
         input_layout.addWidget(self.send_button)
+        self.voice_stack = QStackedWidget()
+        self.voice_stack.setFixedSize(50, 50)
+
+        self.voice_stack.addWidget(self.voice_button)     
+        self.voice_stack.addWidget(self.voice_indicator) 
+
+        input_layout.addWidget(self.voice_stack)
+
         
         content_layout.addWidget(input_widget)
         main_layout.addWidget(content_widget, 1)
@@ -1240,8 +1198,6 @@ class AntonApp(QMainWindow):
     def start_voice_input(self):
         """Start voice input"""
         # Hide the voice button and show indicator
-        self.voice_button.setVisible(False)
-        self.voice_indicator.setVisible(True)
         self.voice_indicator.start_waves()
         
         # Start speech recognition in a thread
@@ -1262,6 +1218,7 @@ class AntonApp(QMainWindow):
         """Update the UI listening status"""
         self.voice_stack.setCurrentIndex(1 if is_listening else 0)
         if not is_listening:
+            self.voice_indicator.stop_waves()
             self.voice_indicator.stop_waves()
             self.voice_indicator.setVisible(False)
             self.voice_button.setVisible(True)
