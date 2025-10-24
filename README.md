@@ -1,236 +1,86 @@
-# 🧠 Anton AI Assistant
+# Anton AI Assistant
 
-A modern, feature-rich AI assistant desktop application built with **Python** and **PySide6**, featuring **voice interaction**, **file management**, and **web search** capabilities.
+A **modern desktop AI assistant** built with **Python** and **PySide6**, featuring **Google Gemini integration**, **voice commands**, **file management**, and **web search**
 
-![Anton AI Assistant](https://img.shields.io/badge/Anton-AI%2520Assistant-purple?style=for-the-badge)
-
----
-
-## 🚀 Features
-
-- 🤖 **AI-Powered Conversations:** Powered by **Google Gemini** for intelligent responses  
-- 🎙️ **Voice Interaction:** Speak to Anton and get voice responses  
-- 📁 **File Management:** Create, read, update, and manage files directly through chat  
-- 🌐 **Web Search:** Real-time information retrieval when needed  
-- 🎨 **Modern UI:** Beautiful dark theme inspired by **Perplexity**  
-- 💬 **Chat Interface:** Smooth, animated chat bubbles with timestamps  
-- 🔍 **File Browser:** Built-in file explorer for your project files  
+![Anton AI Assistant](https://img.shields.io/badge/Anton-AI_Assistant-purple?style=for-the-badge)
 
 ---
 
-## 📋 Prerequisites
+## Features
 
-- **Python 3.8** or higher  
-- **Google Gemini API key**  
-- **Google Custom Search API key** *(optional, for web search)*
+- AI-powered chat using **Google Gemini**  
+- Voice input & speech output  
+- File management (create, read, update, delete)  
+- Web search with Google Custom Search  
 
 ---
 
-## 🛠️ Installation
+## Installation
 
-### 1. Clone the Repository
-
+### Clone and Install
 ```bash
 git clone <your-repo-url>
 cd anton-ai-assistant
-```
-
-## 🛠️ Installation
-
-### 2. Install Required Dependencies
-
-```bash
 pip install -r requirements.txt
-
-3. Set Up Environment Variables
 ```
-Create a .env file in the project root directory and add your API keys:
+
+## Add API Keys
+
+Create a `.env` file in the root directory:
 
 GEMINI_API_KEY=your_gemini_api_key_here
 CUSTOM_SEARCH_KEY=your_custom_search_key_here
 SEARCH_ENGINE_ID=your_search_engine_id_here
 
-🔑 Getting API Keys
-Google Gemini API Key
+yaml
+Copy code
 
-Go to Google AI Studio
+---
 
-Sign in with your Google account
+## Usage
 
-Create a new API key
+Run the app:
 
-Copy the key and add it to your .env file as GEMINI_API_KEY
-
-Google Custom Search API (Optional - for Web Search)
-
-Visit Google Cloud Console
-
-Create a new project or select an existing one
-
-Enable the Custom Search JSON API
-
-Create credentials (API key)
-
-Set up a Custom Search Engine at Programmable Search Engine
-
-Add the Search Engine ID and API key to your .env file
-
-🎯 Usage
-Run the Application
 python anton_app.py
 
-Basic Interactions
+markdown
+Copy code
 
-Type your questions in the input field
+Then you can:
 
-Click the microphone button for voice input
+- Type or speak to Anton  
+- Manage files easily  
+- Search the web  
+- Hear voice replies  
 
-Use the file browser to manage your files
+### Example Commands
 
-Send commands like:
-
-create file [filename] with [content description]
-read file [filename]
-update file [filename] with [new content]
-append to file [filename] with [additional content]
-delete file [filename]
-open file [filename]
+create file notes.txt with AI summary
+read file notes.txt
 list files
 
-🗂️ Project Structure
-anton-ai-assistant/
-├── anton_app.py          # Main application file
-├── .env                  # Environment variables (create this)
-├── requirements.txt      # Python dependencies
-├── Anton_Files/          # Directory for managed files
-└── README.md             # This file
+yaml
+Copy code
 
-📁 File Management
+---
 
-Anton automatically creates and manages an Anton_Files directory where all your files are stored.
-You can:
+## Tech Stack
 
-📝 Create new files with AI-generated content
+- PySide6 – Modern GUI  
+- Google Gemini API – AI model  
+- SpeechRecognition – Voice input  
+- pyttsx3 – Voice output  
+- python-dotenv – Environment setup  
 
-📖 Read and get summaries of file contents
+---
 
-🔄 Update files with new AI-generated content
+## Configuration
 
-➕ Append additional content to existing files
+Change the Gemini model in `anton_app.py`:
 
-🗑️ Delete files you no longer need
-
-📂 Open files in their default applications
-
-🎙️ Voice Commands
-
-Click the microphone button to activate voice input. The application will:
-
-Show a visual indicator when listening
-
-Convert your speech to text
-
-Process your query and provide a response
-
-Read responses aloud using text-to-speech
-
-🔧 Configuration
-Using Different AI Models
-
-Modify the model in the code by changing this line in anton_app.py:
-
-model = genai.GenerativeModel('gemini-2.0-flash-thinking-exp')
-
-
-Available Gemini Models:
-
-gemini-2.0-flash-thinking-exp (current)
-
-gemini-1.5-flash
-
-gemini-1.5-pro
-
-gemini-1.0-pro
-
-Customizing the Theme
-
-Modify the color scheme in the ThemeColors class:
-
-class ThemeColors:
-    PRIMARY = "#0F0F17"           # Main background
-    ACCENT = "#6F58C4"            # Primary accent color
-    TEXT_PRIMARY = "#FFFFFF"      # Main text color
-    # ... other colors
-
-🐛 Troubleshooting
-Common Issues
-🔐 API Key Errors
-
-Ensure your Gemini API key is valid and in the .env file
-
-Check that it has the necessary permissions
-
-🎤 Voice Recognition Not Working
-
-Ensure a microphone is connected
-
-Check system microphone permissions
-
-Verify internet connection for Google Speech Recognition
-
-📁 File Operations Failing
-
-Ensure the Anton_Files directory has write permissions
-
-Avoid using invalid characters in filenames
-
-⚙️ Module Import Errors
-
-Run pip install -r requirements.txt
-
-Use Python 3.8+
-
-📦 Dependencies
-
-Key packages used:
-
-PySide6 – Modern GUI framework
-
-google-generativeai – Gemini AI integration
-
-pyttsx3 – Text-to-speech functionality
-
-speechrecognition – Speech-to-text capabilities
-
-python-dotenv – Environment variable management
-
-🔒 Privacy & Security
-
-API keys are stored locally in .env
-
-File operations occur only in the Anton_Files directory
-
-Voice data is processed by Google’s Speech Recognition
-
-No external data storage beyond API requirements
-
-📄 License
-
-This project is for educational and personal use.
-Please comply with Google’s API Terms of Service.
-
-🤝 Contributing
-
-Feel free to fork this project and submit pull requests for improvements!
-
-📞 Support
-
-If you encounter issues:
-
-Check the Troubleshooting section above
-
-Ensure all API keys are properly configured
-
-Verify all dependencies are installed correctly
-
-⚠️ Note: This application requires an active internet connection for AI responses and voice recognition features.
+```python
+model = genai.GenerativeModel("gemini-2.0-flash-thinking-exp")
+```
+## License
+For educational and personal use only.
+Comply with Google’s API Terms of Service.
